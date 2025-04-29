@@ -1,0 +1,390 @@
+#include <iostream>
+#include <cstring>
+#include <string>
+using namespace std;
+
+class STNODE{
+    int no; //student number
+    string name;//student's name must use string to memorize
+    int prg, eng;
+    STNODE *ptr;//list
+    public:
+        STNODE() : no(0), prg(0), eng(0), ptr(NULL){}//reset
+        void w_no(int x){ no=x; }//write number
+        int r_no(){ return no; }//read number
+        void w_name(string s){ name=s; }
+        string r_name(){ return name; }
+        void w_prg(int x){ prg=x; }
+        int r_prg(){ return prg; }
+        void w_eng(int x){ eng=x; }
+        int r_eng(){ return eng; }
+        void w_ptr(STNODE*p){ ptr=p; }//write into next address
+        STNODE* r_ptr(){ return ptr; }
+        int r_grade(){ return prg+eng; }
+        void operator +( int x )
+        {
+        eng=eng+5;
+        prg=prg+5;
+        }
+};
+
+class menu{
+    int select;
+public:
+    menu():select(0){}
+    void w_select(int y){ select=y; }
+    int r_select(){ return select; }
+    void show(){
+        cout<<"選單 MENU"<<endl;
+        cout<<"(1). 新增學生資料 Insertion"<<endl;
+        cout<<"(2). 查詢學生資料 Search"<<endl;
+        cout<<"(3). 刪除學生資料 Deletion"<<endl;
+        cout<<"(4). 調整學生資料 Adjust Score"<<endl;
+        cout<<"(5). 列印串列資料 Print List Data"<<endl;
+        cout<<"(6). 列印學生成績單 Print Transcript"<<endl;
+        cout<<"(0). 離開 Exit"<<endl;
+        cout<<"請選擇輸入項目? Please select one ";
+    }
+};
+
+void insert(STNODE*& head){
+    string name;
+    int studentNo, progScore, engScore;
+    bool duplicate;
+    
+    do{
+        duplicate = false;
+        cout<<"請輸入學生座號： ";
+        cin>>studentNo;
+        cin.ignore();
+        STNODE* current=head;
+        while(current != NULL){
+            if (current->r_no() == studentNo){
+                cout<<"該座號已經存在，輸入-1退出或其他數字繼續刪除資料";
+                int choice;
+                cin>>choice;
+                if (choice==-1){return;}
+                else{
+                    duplicate = true;
+                    break ;
+                }
+            }
+            current = current->r_ptr();
+        }
+    }while(duplicate);
+    STNODE* newNode = new STNODE();
+    newNode->w_no(studentNo);
+   
+    cout<< "學生姓名：" ;
+    getline(cin, name);
+    newNode->w_name(name);
+   
+    cout<< "程式設計成績：  " ;
+    cin>>progScore;
+    newNode->w_prg(progScore);
+
+    cout<< "英文成績：" ;
+    cin>>engScore;
+    newNode->w_eng(engScore);
+   
+    if(head==NULL || head->r_no() > newNode->r_no()){
+        newNode->w_ptr(head);
+        head=newNode;
+    }else{
+        STNODE* current=head;
+        while(current->r_ptr()!=NULL && current->r_ptr()->r_no()< newNode->r_no())
+        {
+            current=current->r_ptr();
+        }
+        newNode->w_ptr(current->r_ptr());
+        current->w_ptr(newNode);
+    }
+    cout<<"新增學生資料完成!"<<endl;
+}
+
+
+void search(STNODE*& head){
+    if(head==NULL){
+        cout<<"資料庫中沒有學生資料"<<endl;
+        return;
+    }
+    
+    string student_name;
+    cout<<"請輸入學生姓名: ";
+    cin.ignore();
+    getline(cin,student_name);
+
+    STNODE* current=head;
+    bool found = false;
+    int count=0;
+
+    while(current!=NULL){
+        if (current->r_name()==student_name){
+            cout<<"座號: "<<current->r_no()<<", 姓名: "<<current->r_name()<<"程式設計成績："<<current->r_prg()<<" 英文成績："<<current->r_eng()<<endl;
+            found = true;
+            count++;
+        }
+        current= current->r_ptr();
+    }
+    
+    if(!found){
+        cout<< "該學生不存在，無法查詢"<<endl;
+    }else if(count>1){
+        cout<<"共找到"<<count<<" 位同名學生"<<endl;
+    }
+}
+
+void modify(STNODE*& head){
+    if(head==NULL){
+        cout<<"資料庫中沒有學生資料"<<endl;
+        return;
+    }
+    
+    int student_no, adjustment = 5;
+    cout<<"請輸入要調整成績的學生座號 :";
+    cin>>student_no;
+    
+    STNODE* current=head;
+    bool found = false;
+    
+    while(current!=NULL){
+        if (current->r_no()==student_no) {
+            found = true;
+            cout<<"學生姓名"<< current->r_name()<<endl;
+            cout << "學生原本程設成績:" << current->r_prg() << endl;
+            cout << "學生原本英文成績:" << current->r_eng() << endl;
+            
+            *current + adjustment;
+            
+            cout << "新的程設成績: " << current->r_prg() << endl;
+            cout << "新的英文成績: " << current->r_eng() << endl;
+            cout << "資料已調整完成"<<endl;
+            break;
+        }
+        
+        current = current->r_ptr();
+    }
+    
+    if(!found){
+        cout<<"座號"<<student_no<<" 的學生資料不存在"<< endl;
+    }
+}
+
+void Delete(STNODE*& head){
+    if(head==NULL){
+        cout<<"資料庫中沒有學生資料"<<endl;
+        return;
+    }
+    
+    int student_no;
+    bool found=false;
+    
+    do{
+        cout<<"輸入要刪除的學生號碼：";
+        cin>>student_no;
+        
+        STNODE* current = head;
+        STNODE* prev = NULL;
+        
+        while (current != NULL) {
+            if (current->r_no() == student_no) {
+                found = true;
+                if (prev == NULL) {
+                    head = current->r_ptr();
+                }else {
+                    prev->w_ptr(current->r_ptr());
+                }
+                cout << "資料刪除完成/" << endl;
+                delete current;
+            }
+            prev = current;
+            current = current->r_ptr();
+        }
+        if(!found){
+            cout<<"座號"<<student_no<<" 學生資料不存在"<<endl;
+            cout<<"輸入-1退出或其他數字繼續刪除資料：";
+            int choice;
+            cin>> choice;
+            if (choice==-1){
+                return;
+            }
+        }
+    }while (!found);
+}
+
+void list(STNODE*& head){
+    if(head==NULL){
+        cout<<"head->||"<<endl;
+        return;
+    }
+    
+    STNODE* current=head;
+    cout<<"head->";
+    
+    while(current!= NULL){
+        cout<< current->r_no()<<"->";
+        current=current->r_ptr();
+    }
+    cout<<"||"<<endl;
+}
+STNODE* copylist(STNODE*head){
+    if (head==NULL)return NULL;
+    
+    STNODE* newHead = NULL;
+    STNODE* tail = NULL;
+    STNODE* current = head;
+    
+    while(current !=NULL){
+        STNODE* newNode = new STNODE();
+        newNode->w_no(current->r_no());
+        newNode->w_name(current->r_name());
+        newNode->w_prg(current->r_prg());
+        newNode->w_eng(current->r_eng());
+        newNode->w_ptr(NULL);
+        
+        if (newHead == NULL) {
+            newHead = newNode;
+            tail = newNode;
+        } else {
+            tail->w_ptr(newNode);
+            tail = newNode;
+        }
+        current = current->r_ptr();
+    }
+    return newHead;
+}
+
+void freeList(STNODE* head) {
+    while (head != NULL) {
+        STNODE* temp = head;
+        head = head->r_ptr();
+        delete temp;
+    }
+}
+
+void transcript(STNODE*& head){
+    if(head==NULL){
+        cout<<"沒有學生資料"<<endl;
+        return;
+    }
+    STNODE* sortedList = copylist(head);
+  
+    bool swapped;
+    STNODE* ptr1;
+    STNODE* lptr = NULL;
+    
+    do {
+        swapped = false;
+        ptr1 = sortedList;
+        
+        while (ptr1->r_ptr() != lptr) {
+            if (ptr1->r_grade() < ptr1->r_ptr()->r_grade()) {
+              
+                int tempNo = ptr1->r_no();
+                ptr1->w_no(ptr1->r_ptr()->r_no());
+                ptr1->r_ptr()->w_no(tempNo);
+           
+                string tempName = ptr1->r_name();
+                ptr1->w_name(ptr1->r_ptr()->r_name());
+                ptr1->r_ptr()->w_name(tempName);
+             
+                int tempPrg = ptr1->r_prg();
+                ptr1->w_prg(ptr1->r_ptr()->r_prg());
+                ptr1->r_ptr()->w_prg(tempPrg);
+              
+                int tempEng = ptr1->r_eng();
+                ptr1->w_eng(ptr1->r_ptr()->r_eng());
+                ptr1->r_ptr()->w_eng(tempEng);
+                
+                swapped = true;
+            }
+            ptr1 = ptr1->r_ptr();
+        }
+        lptr = ptr1;
+    } while (swapped);
+    
+    STNODE* current = sortedList;
+    int rank = 1;
+    int count = 1;
+    int prev_grade = current->r_grade();
+    
+    cout << "===== 學生成績排名表 =====" << endl;
+    cout << "名次\t座號\t姓名\t\t程式設計\t英文\t總分" << endl;
+    
+    while (current != NULL) {
+        if (current != sortedList && current->r_grade() < prev_grade) {
+            rank = count;
+        }
+        
+        cout << rank << "\t"
+             << current->r_no() << "\t"
+             << current->r_name() << "\t\t"
+             << current->r_prg() << "\t\t"
+             << current->r_eng() << "\t"
+             << current->r_grade() << endl;
+        
+        prev_grade = current->r_grade();
+        current = current->r_ptr();
+        count++;
+    }
+    
+    cout << "=========================" << endl;
+    
+    freeList(sortedList);
+}
+
+int main(){
+    STNODE* head = NULL;
+    menu m;
+    do {
+        m.show();
+        int s;
+        cin>>s;
+        m.w_select(s);
+        switch (m.r_select())
+        {
+            case 1:
+            cout<< "新增學生資料 Insertion" <<endl;
+            cout<<"----------------------------"<<endl;
+            insert(head);
+            break;
+            case 2:
+            cout<< "查詢學生資料 Search" <<endl;
+            cout<<"----------------------------"<<endl;
+            search(head);
+            break;
+            case 3:
+            cout<< "刪除學生資料 Deletion" <<endl;
+            cout<<"----------------------------"<<endl;
+            Delete(head);
+            break;
+            case 4:
+            cout<< "調整學生資料 Adjust Score" <<endl;
+            cout<<"----------------------------"<<endl;
+            modify(head);
+            break;
+            case 5:
+            cout<< "列印串列資料 Print List Data" <<endl;
+            cout<<"----------------------------"<<endl;
+            list(head);
+            break;
+            case 6:
+            cout<<"列印學生成績單 Print Transcript"<<endl;
+            transcript(head);
+            break;
+            case 0:
+            cout<<"離開 Exit"<<endl;
+            break;
+            default:
+            cout << "輸入錯誤" << endl;
+            cout<<"----------------------------"<<endl;
+        }
+    }while(m.r_select()!=0);
+
+    while (head != NULL) {
+        STNODE* temp = head;
+        head = head->r_ptr();
+        delete temp;
+    }
+    return 0;
+}
