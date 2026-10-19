@@ -66,10 +66,10 @@ cd Student-System
 
 ### Compile
 
-The source file is named `minterm` and contains C++ source code. If necessary, rename it to `minterm.cpp`, or compile it directly with a compiler that accepts the file extension:
+The source file is named `midtern` and contains C++ source code. If necessary, rename it to `midtern.cpp`, or compile it directly with a compiler that accepts the file extension:
 
 ```bash
-g++ -std=c++11 -Wall -Wextra -o student-system minterm.cpp
+g++ -std=c++11 -Wall -Wextra -o student-system midtern.cpp
 ```
 
 ### Run
@@ -178,7 +178,7 @@ As the project developer, my responsibilities included:
 
 ## Future Improvements
 
-- Rename the source file to `minterm.cpp` and add a build configuration such as a `Makefile` or CMake project.
+- Rename the source file to `midtern.cpp` and add a build configuration such as a `Makefile` or CMake project.
 - Add input validation and clear error messages for invalid values.
 - Save and load student records using a text file, CSV file, or database.
 - Add update and editing functions for student names and individual scores.
